@@ -1,0 +1,6 @@
+{
+  "terminalAllowlist": [
+    "git",
+    "rm -rf"
+  ]
+}

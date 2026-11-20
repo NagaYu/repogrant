@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "grab": {
+      "command": "pnpm",
+      "args": [
+        "dlx",
+        "grab-mcp@latest"
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "local": {
+      "command": "node",
+      "args": [
+        "server.js"
+      ],
+      "trust": true
+    }
+  },
+  "security": {
+    "folderTrust": {
+      "enabled": true
+    }
+  }
+}

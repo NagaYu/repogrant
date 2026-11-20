@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      123,
+      {
+        "tool": "Bash"
+      }
+    ],
+    "deny": [
+      null
+    ]
+  }
+}

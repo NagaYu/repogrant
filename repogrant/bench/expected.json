@@ -1,0 +1,175 @@
+{
+  "clean": [
+    "clean/minimal",
+    "clean/claude-locked",
+    "clean/codex-readonly",
+    "clean/gemini-safe",
+    "clean/fully-configured-git",
+    "clean/cursor-autorun-off",
+    "clean/claude-nonstring-perms",
+    "clean/cursor-allowlist-nonlist",
+    "clean/codex-hooks-disabled",
+    "clean/env-example-only"
+  ],
+  "vcs": [
+    "clean/fully-configured-git",
+    "mut/r4-codex-silent-vcs"
+  ],
+  "mutations": {
+    "mut/r1-claude-hook": [
+      {
+        "check": "R1",
+        "tool": "claude_code",
+        "match": "hooks.SessionStart"
+      }
+    ],
+    "mut/r1-codex-hook": [
+      {
+        "check": "R1",
+        "tool": "codex",
+        "match": "hooks.PreToolUse"
+      }
+    ],
+    "mut/r1-gemini-trust": [
+      {
+        "check": "R1",
+        "tool": "gemini_cli",
+        "match": "trust"
+      }
+    ],
+    "mut/r1-cursor-autorun": [
+      {
+        "check": "R1",
+        "tool": "cursor",
+        "match": "autoRun"
+      }
+    ],
+    "mut/r2-claude-wild": [
+      {
+        "check": "R2",
+        "tool": "claude_code",
+        "match": "unrestricted shell"
+      },
+      {
+        "check": "R2",
+        "tool": "claude_code",
+        "match": "git`-wide"
+      },
+      {
+        "check": "R2",
+        "tool": "claude_code",
+        "match": "aws`-wide"
+      }
+    ],
+    "mut/r2-cursor-prefix": [
+      {
+        "check": "R2",
+        "tool": "cursor",
+        "match": "`git`"
+      },
+      {
+        "check": "R2",
+        "tool": "cursor",
+        "match": "`rm -rf`"
+      }
+    ],
+    "mut/r3-divergence": [
+      {
+        "check": "R3",
+        "tool": "",
+        "match": "command_execution"
+      },
+      {
+        "check": "R3",
+        "tool": "",
+        "match": "network_egress"
+      }
+    ],
+    "mut/r4-gemini-silent": [
+      {
+        "check": "R4",
+        "tool": "gemini_cli",
+        "match": "Folder Trust"
+      }
+    ],
+    "mut/r4-codex-silent-vcs": [
+      {
+        "check": "R4",
+        "tool": "codex",
+        "match": "workspace-write"
+      }
+    ],
+    "mut/r4-claude-secret": [
+      {
+        "check": "R4",
+        "tool": "claude_code",
+        "match": "secret"
+      }
+    ],
+    "mut/r5-codex-exfil": [
+      {
+        "check": "R5",
+        "tool": "codex",
+        "match": "network egress"
+      }
+    ],
+    "mut/r5-claude-exfil": [
+      {
+        "check": "R5",
+        "tool": "claude_code",
+        "match": "network egress"
+      }
+    ],
+    "mut/r6-unpinned": [
+      {
+        "check": "R6",
+        "tool": "claude_code",
+        "match": "unpinned-npx"
+      },
+      {
+        "check": "R6",
+        "tool": "cursor",
+        "match": "unpinned-npx"
+      },
+      {
+        "check": "R6",
+        "tool": "codex",
+        "match": "unpinned-uvx"
+      },
+      {
+        "check": "R6",
+        "tool": "gemini_cli",
+        "match": "unpinned-npx"
+      },
+      {
+        "check": "R6",
+        "tool": "claude_code",
+        "match": "pipe-to-shell"
+      }
+    ],
+    "mut/r6-pnpm-dlx": [
+      {
+        "check": "R6",
+        "tool": "claude_code",
+        "match": "unpinned-npx"
+      }
+    ],
+    "mut/r4-gemini-strfalse": [
+      {
+        "check": "R4",
+        "tool": "gemini_cli",
+        "match": "Folder Trust"
+      }
+    ]
+  },
+  "malformed": {
+    "mut/malformed": [
+      ".claude/settings.json",
+      ".codex/config.toml"
+    ],
+    "mut/null-toplevel": [
+      ".claude/settings.json",
+      ".mcp.json"
+    ]
+  }
+}

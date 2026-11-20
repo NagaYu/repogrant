@@ -1,0 +1,281 @@
+{
+  "report_version": "1.0",
+  "scenario": "A freshly cloned repository with NO agent config of any kind; a developer opens it in each tool with that tool's out-of-box settings.",
+  "tool_version": "0.1.0",
+  "tools": {
+    "claude_code": {
+      "dimensions": {
+        "auto_approval": {
+          "consent_required": null,
+          "judgeable": true,
+          "note": "No repo config => no hooks/trusted servers. NB: committed hooks DO run with no trust prompt under `claude -p`/SDK (see R1).",
+          "quote": "Claude Code checks workspace trust before it runs any hook from a settings file.",
+          "url": "https://code.claude.com/docs/en/hooks",
+          "value": "none"
+        },
+        "command_execution": {
+          "consent_required": true,
+          "judgeable": true,
+          "note": "`default` permission mode when the repo sets nothing effective.",
+          "quote": "Prompts before most edits, shell commands, and network requests.",
+          "url": "https://code.claude.com/docs/en/permissions",
+          "value": "consent-required"
+        },
+        "filesystem_read": {
+          "consent_required": null,
+          "judgeable": true,
+          "note": "Reads outside the working directory are not stated to be blocked by default.",
+          "quote": "By default, Claude has access to files in the directory where you launched it",
+          "url": "https://code.claude.com/docs/en/permissions",
+          "value": "workspace"
+        },
+        "filesystem_write": {
+          "consent_required": true,
+          "judgeable": true,
+          "quote": "Prompts before most edits, shell commands, and network requests.",
+          "url": "https://code.claude.com/docs/en/permissions",
+          "value": "workspace / consent-required"
+        },
+        "network_egress": {
+          "consent_required": true,
+          "judgeable": true,
+          "note": "No network sandbox by default; egress follows shell/WebFetch consent.",
+          "quote": "If Bash is allowed, Claude can still use `curl`, `wget`, or other tools to reach any URL.",
+          "url": "https://code.claude.com/docs/en/permissions",
+          "value": "reachable-on-consent"
+        },
+        "secret_reach": {
+          "consent_required": null,
+          "judgeable": true,
+          "note": "In-workspace secret files (.env, keys) fall within the default read scope.",
+          "quote": "By default, Claude has access to files in the directory where you launched it",
+          "url": "https://code.claude.com/docs/en/permissions",
+          "value": "reachable"
+        }
+      },
+      "label": "Claude Code"
+    },
+    "codex": {
+      "dimensions": {
+        "auto_approval": {
+          "consent_required": null,
+          "judgeable": true,
+          "note": "Hooks are enabled by default but repo hooks are per-hash trust-gated; no silent auto-run.",
+          "quote": "Non-managed hooks must be reviewed and trusted before they run.",
+          "url": "https://learn.chatgpt.com/docs/hooks.md",
+          "value": "none"
+        },
+        "command_execution": {
+          "consent_required": true,
+          "dual": [
+            {
+              "label": "version-controlled",
+              "quote": "Version-controlled folders: `Auto` (workspace write + on-request approvals)",
+              "url": "https://learn.chatgpt.com/docs/agent-approvals-security",
+              "value": "on-request (Auto / workspace-write)"
+            },
+            {
+              "label": "non-version-controlled",
+              "quote": "Non-version-controlled folders: `read-only`",
+              "url": "https://learn.chatgpt.com/docs/agent-approvals-security",
+              "value": "read-only (no command run without approval)"
+            },
+            {
+              "label": "conflict (sandboxing page)",
+              "quote": "This is the default low-friction mode for local work.",
+              "url": "https://learn.chatgpt.com/docs/sandboxing",
+              "value": "workspace-write called the default low-friction mode"
+            }
+          ],
+          "judgeable": true,
+          "quote": "Version-controlled folders: `Auto` (workspace write + on-request approvals)",
+          "url": "https://learn.chatgpt.com/docs/agent-approvals-security",
+          "value": "consent-required"
+        },
+        "filesystem_read": {
+          "consent_required": null,
+          "judgeable": true,
+          "quote": "The agent can inspect files, but it can't edit files or run commands without approval.",
+          "url": "https://learn.chatgpt.com/docs/sandboxing",
+          "value": "workspace"
+        },
+        "filesystem_write": {
+          "consent_required": true,
+          "dual": [
+            {
+              "label": "version-controlled",
+              "quote": "edit within the workspace, and run routine local commands inside that boundary",
+              "url": "https://learn.chatgpt.com/docs/sandboxing",
+              "value": "workspace (workspace-write)"
+            },
+            {
+              "label": "non-version-controlled",
+              "quote": "it can't edit files or run commands without approval",
+              "url": "https://learn.chatgpt.com/docs/sandboxing",
+              "value": "none (read-only)"
+            }
+          ],
+          "judgeable": true,
+          "note": "`<writable_root>/.git` is protected as read-only.",
+          "quote": "The agent can read files, edit within the workspace, and run routine local commands inside that boundary.",
+          "url": "https://learn.chatgpt.com/docs/sandboxing",
+          "value": "depends-on-vcs"
+        },
+        "network_egress": {
+          "consent_required": null,
+          "judgeable": true,
+          "quote": "the default `workspace-write` sandbox mode keeps network access turned off unless you enable it in your configuration:",
+          "url": "https://learn.chatgpt.com/docs/agent-approvals-security",
+          "value": "off"
+        },
+        "secret_reach": {
+          "consent_required": null,
+          "judgeable": true,
+          "note": "Read scope covers the workspace; in-workspace secrets are inspectable.",
+          "quote": "The agent can inspect files",
+          "url": "https://learn.chatgpt.com/docs/sandboxing",
+          "value": "reachable"
+        }
+      },
+      "label": "OpenAI Codex CLI"
+    },
+    "copilot": {
+      "dimensions": {
+        "auto_approval": {
+          "consent_required": null,
+          "judgeable": true,
+          "note": "No repo-declared shell-hook mechanism is documented for Copilot.",
+          "quote": "",
+          "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/customize-the-agent-firewall",
+          "value": "none"
+        },
+        "command_execution": {
+          "consent_required": null,
+          "judgeable": false,
+          "reason": "Copilot's command authority is platform/runner-side, not a repo grammar (D-02); Copilot is treated as R3 instruction-divergence only.",
+          "value": "not-judgeable"
+        },
+        "filesystem_read": {
+          "consent_required": null,
+          "judgeable": false,
+          "reason": "Filesystem scope of the Actions/cloud runner is not described as a repo grant.",
+          "value": "not-judgeable"
+        },
+        "filesystem_write": {
+          "consent_required": null,
+          "judgeable": false,
+          "reason": "Filesystem scope of the Actions/cloud runner is not described as a repo grant.",
+          "value": "not-judgeable"
+        },
+        "network_egress": {
+          "consent_required": null,
+          "judgeable": true,
+          "note": "Documented platform default, not a repo-granted authority; the repo cannot widen it here.",
+          "quote": "By default, Copilot's access to the internet is limited by a firewall.",
+          "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/customize-the-agent-firewall",
+          "value": "firewall+recommended-allowlist (platform-side)"
+        },
+        "secret_reach": {
+          "consent_required": null,
+          "judgeable": false,
+          "reason": "Not a repo-side grant; governed by the runner/secret-store, not repo config.",
+          "value": "not-judgeable"
+        }
+      },
+      "label": "GitHub Copilot"
+    },
+    "cursor": {
+      "dimensions": {
+        "auto_approval": {
+          "consent_required": true,
+          "judgeable": true,
+          "note": "MCP tool calls ask by default; shell auto-run still depends on user-global Run Mode (not repo). Launch-time consent for a project-declared server is not documented.",
+          "quote": "Cursor asks for approval before using MCP tools by default.",
+          "url": "https://cursor.com/docs/context/mcp",
+          "value": "ask (MCP)"
+        },
+        "command_execution": {
+          "consent_required": null,
+          "judgeable": false,
+          "reason": "Cursor's effective default depends on the user's global Run Mode selection (Cursor Settings), which is not a repo-side artifact.",
+          "value": "not-judgeable"
+        },
+        "filesystem_read": {
+          "consent_required": null,
+          "judgeable": false,
+          "reason": "Not determined by the repo; governed by user-global Run Mode / sandbox settings.",
+          "value": "not-judgeable"
+        },
+        "filesystem_write": {
+          "consent_required": null,
+          "judgeable": false,
+          "reason": "Not determined by the repo; governed by user-global Run Mode / sandbox settings.",
+          "value": "not-judgeable"
+        },
+        "network_egress": {
+          "consent_required": null,
+          "judgeable": false,
+          "reason": "Cursor documents no repo-side network-egress grammar.",
+          "value": "not-judgeable"
+        },
+        "secret_reach": {
+          "consent_required": null,
+          "judgeable": false,
+          "reason": "Read scope is user-global (Run Mode), not repo-determined.",
+          "value": "not-judgeable"
+        }
+      },
+      "label": "Cursor"
+    },
+    "gemini_cli": {
+      "dimensions": {
+        "auto_approval": {
+          "consent_required": null,
+          "judgeable": true,
+          "note": "Default `mcpServers.*.trust` is false; no config => no trusted servers. A committed `trust:true` server auto-runs with no confirmation (see R1).",
+          "quote": "When `true`, bypasses all tool call confirmations for this server (default: `false`)",
+          "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/cli/trusted-folders.md",
+          "value": "none"
+        },
+        "command_execution": {
+          "consent_required": true,
+          "judgeable": true,
+          "note": "`general.defaultApprovalMode` default is `default`.",
+          "quote": "'default' prompts for approval, 'auto_edit' auto-approves edit tools, and 'plan' is read-only mode.",
+          "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/reference/configuration.md",
+          "value": "consent-required"
+        },
+        "filesystem_read": {
+          "consent_required": null,
+          "judgeable": true,
+          "note": "Folder Trust is OFF by default, so a repo's `.gemini/` config and `.env` ARE honored by default (the protective safe mode only applies once the feature is enabled).",
+          "quote": "Workspace settings are ignored: The CLI will not load the `.gemini/settings.json` file from the project.",
+          "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/cli/trusted-folders.md",
+          "value": "workspace"
+        },
+        "filesystem_write": {
+          "consent_required": true,
+          "judgeable": true,
+          "quote": "'default' prompts for approval, 'auto_edit' auto-approves edit tools, and 'plan' is read-only mode.",
+          "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/reference/configuration.md",
+          "value": "workspace / consent-required"
+        },
+        "network_egress": {
+          "consent_required": null,
+          "judgeable": false,
+          "reason": "`tools.sandbox` default is not documented verbatim (only asserted `undefined` in a non-verbatim summary); without a confirmed sandbox default the egress default is undetermined. `tools.sandboxNetworkAccess` (default false) only applies when the sandbox is on.",
+          "value": "not-judgeable"
+        },
+        "secret_reach": {
+          "consent_required": null,
+          "judgeable": true,
+          "note": "That protection applies only in safe mode; Folder Trust is off by default, so `.env` is loaded/reachable by default.",
+          "quote": "Environment variables are ignored: … not load any `.env` files",
+          "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/cli/trusted-folders.md",
+          "value": "reachable"
+        }
+      },
+      "label": "Gemini CLI"
+    }
+  }
+}

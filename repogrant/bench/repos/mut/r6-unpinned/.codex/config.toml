@@ -1,0 +1,3 @@
+[mcp_servers.c]
+command = "uvx"
+args = ["some-tool"]

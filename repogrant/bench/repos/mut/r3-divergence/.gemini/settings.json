@@ -1,0 +1,11 @@
+{
+  "tools": {
+    "sandbox": "docker",
+    "sandboxNetworkAccess": false
+  },
+  "security": {
+    "folderTrust": {
+      "enabled": true
+    }
+  }
+}

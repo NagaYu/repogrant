@@ -1,0 +1,76 @@
+{
+  "findings_by_check": {
+    "R1": 363,
+    "R2": 288,
+    "R3": 36,
+    "R4": 174,
+    "R5": 5,
+    "R6": 33
+  },
+  "findings_by_severity": {
+    "high": 363,
+    "info": 243,
+    "medium": 293
+  },
+  "findings_by_tool": {
+    "claude_code": 585,
+    "codex": 208,
+    "copilot": 33,
+    "cursor": 84,
+    "gemini_cli": 82
+  },
+  "index_totals_approx": {
+    "claude (.claude/settings.json)": 88576,
+    "codex (.codex/config.toml)": 11328,
+    "cursor (.cursor/permissions.json)": 141,
+    "gemini (.gemini/settings.json)": 4472,
+    "mcp (.mcp.json)": 89344
+  },
+  "parse_problem_repos": 8,
+  "r3_divergence_repos": 33,
+  "r4_defaults_trap_repos": 113,
+  "rates": {
+    "any_finding": 0.992,
+    "parse_problem": 0.067,
+    "r3_divergence": 0.275,
+    "r4_defaults_trap": 0.942
+  },
+  "repos_analyzed": 120,
+  "repos_errored": 0,
+  "repos_truncated_tree": 1,
+  "repos_with_any_finding": 119,
+  "repos_with_check": {
+    "R1": 43,
+    "R2": 27,
+    "R3": 33,
+    "R4": 113,
+    "R5": 5,
+    "R6": 16
+  },
+  "sampled_per_surface": {
+    "claude (.claude/settings.json)": 39,
+    "codex (.codex/config.toml)": 40,
+    "cursor (.cursor/permissions.json)": 40,
+    "gemini (.gemini/settings.json)": 38,
+    "mcp (.mcp.json)": 31
+  },
+  "surfaces_present_counts": {
+    ".claude/settings.json": 57,
+    ".claude/settings.local.json": 4,
+    ".codex/config.toml": 37,
+    ".codex/hooks.json": 15,
+    ".cursor/mcp.json": 13,
+    ".cursor/permissions.json": 25,
+    ".cursor/rules/*": 262,
+    ".cursor/sandbox.json": 3,
+    ".env": 3,
+    ".gemini/settings.json": 26,
+    ".github/copilot-instructions.md": 13,
+    ".github/instructions/*": 18,
+    ".mcp.json": 36,
+    "AGENTS.md": 82,
+    "CLAUDE.md": 63,
+    "GEMINI.md": 14,
+    "secret/.env": 255
+  }
+}

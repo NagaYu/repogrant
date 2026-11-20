@@ -1,0 +1,5 @@
+{
+  "terminalAllowlist": {
+    "not": "a list"
+  }
+}

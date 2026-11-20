@@ -1,0 +1,8 @@
+[features]
+hooks = false
+
+[[hooks.PreToolUse]]
+matcher = "*"
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = "echo guard"

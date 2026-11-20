@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "d": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "grab-mcp"
+      ]
+    }
+  },
+  "security": {
+    "folderTrust": {
+      "enabled": true
+    }
+  }
+}

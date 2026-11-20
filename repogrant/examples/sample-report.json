@@ -1,0 +1,760 @@
+{
+  "findings": [
+    {
+      "check": "R2",
+      "class": "preapproval-overreach",
+      "detail": "matches any command (wildcard with no fixed program)",
+      "dimension": "command_execution",
+      "evidence": [
+        {
+          "excerpt": "Bash(*)",
+          "file": ".claude/settings.json",
+          "locator": "permissions.allow[0]"
+        }
+      ],
+      "severity": "high",
+      "title": "Claude allow rule `Bash(*)` grants unrestricted shell",
+      "tool": "claude_code"
+    },
+    {
+      "check": "R3",
+      "class": "cross-tool-divergence",
+      "detail": "The same repo grants materially different authority across tools on this dimension (the cross-tool divergence the repo's reviewer cannot see from one tool alone).",
+      "dimension": "network_egress",
+      "evidence": [
+        {
+          "excerpt": "Bash(*)",
+          "file": ".claude/settings.json",
+          "locator": "permissions.allow[0]"
+        },
+        {
+          "excerpt": "the default `workspace-write` sandbox mode keeps network access turned off unless you enable it in your configuration:",
+          "file": "<docs>",
+          "locator": "<default>",
+          "url": "https://learn.chatgpt.com/docs/agent-approvals-security"
+        }
+      ],
+      "severity": "high",
+      "title": "network_egress: open in Claude Code but restricted in OpenAI Codex CLI",
+      "tools": [
+        "claude_code",
+        "codex"
+      ]
+    },
+    {
+      "check": "R3",
+      "class": "cross-tool-divergence",
+      "detail": "The same repo grants materially different authority across tools on this dimension (the cross-tool divergence the repo's reviewer cannot see from one tool alone).",
+      "dimension": "command_execution",
+      "evidence": [
+        {
+          "excerpt": "Bash(*)",
+          "file": ".claude/settings.json",
+          "locator": "permissions.allow[0]"
+        },
+        {
+          "excerpt": "on-request",
+          "file": ".codex/config.toml",
+          "locator": "approval_policy"
+        },
+        {
+          "excerpt": "'default' prompts for approval, 'auto_edit' auto-approves edit tools, and 'plan' is read-only mode.",
+          "file": "<docs>",
+          "locator": "<default>",
+          "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/reference/configuration.md"
+        }
+      ],
+      "severity": "high",
+      "title": "command_execution: open in Claude Code but restricted in OpenAI Codex CLI, Gemini CLI",
+      "tools": [
+        "claude_code",
+        "codex",
+        "gemini_cli"
+      ]
+    },
+    {
+      "check": "R3",
+      "class": "instruction-divergence",
+      "detail": "A repo instruction file prohibits network access while a tool's config grants it: prose and machine authority diverge.",
+      "dimension": "network_egress",
+      "evidence": [
+        {
+          "excerpt": "Do not access the network.",
+          "file": "AGENTS.md",
+          "locator": "prose"
+        },
+        {
+          "excerpt": "Bash(*)",
+          "file": ".claude/settings.json",
+          "locator": "permissions.allow[0]"
+        }
+      ],
+      "severity": "medium",
+      "title": "Instruction file `AGENTS.md` forbids network, but config enables egress in Claude Code",
+      "tools": [
+        "claude_code"
+      ]
+    },
+    {
+      "check": "R4",
+      "class": "silent-default",
+      "detail": "Secret-bearing files are present (.env) and the repo sets no deny Read rule, so the default launch-directory read scope reaches them.",
+      "dimension": "secret_reach",
+      "evidence": [
+        {
+          "excerpt": "By default, Claude has access to files in the directory where you launched it",
+          "file": "<docs>",
+          "locator": "<default>",
+          "url": "https://code.claude.com/docs/en/permissions"
+        }
+      ],
+      "severity": "medium",
+      "title": "Claude Code's silent default read scope includes in-workspace secrets",
+      "tool": "claude_code"
+    },
+    {
+      "check": "R4",
+      "class": "silent-default",
+      "detail": "With Folder Trust disabled (the default), a cloned repo's `.gemini/settings.json`, `.env` and MCP servers are loaded without the protective safe mode ever engaging.",
+      "dimension": "filesystem_read",
+      "evidence": [
+        {
+          "excerpt": "Workspace settings are ignored: The CLI will not load the `.gemini/settings.json` file from the project.",
+          "file": "<docs>",
+          "locator": "<default>",
+          "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/cli/trusted-folders.md"
+        }
+      ],
+      "severity": "medium",
+      "title": "Gemini Folder Trust is off by default, so the repo's config and `.env` are honored silently",
+      "tool": "gemini_cli"
+    },
+    {
+      "check": "R5",
+      "class": "secret-reach-composition",
+      "detail": "The agent can read secret-bearing paths and also network egress: a composed exfiltration path. Secret files present: .env.",
+      "dimension": "secret_reach",
+      "evidence": [
+        {
+          "excerpt": "By default, Claude has access to files in the directory where you launched it",
+          "file": "<docs>",
+          "locator": "<default>",
+          "url": "https://code.claude.com/docs/en/permissions"
+        },
+        {
+          "excerpt": "Bash(*)",
+          "file": ".claude/settings.json",
+          "locator": "permissions.allow[0]"
+        }
+      ],
+      "severity": "high",
+      "title": "Claude Code: readable secrets composed with network egress",
+      "tool": "claude_code"
+    },
+    {
+      "check": "R6",
+      "class": "unpinned-supply-chain",
+      "detail": "`npx` launches `fetch-mcp@latest` with no pinned version — invocation: `npx -y fetch-mcp@latest`.",
+      "evidence": [
+        {
+          "excerpt": "npx -y fetch-mcp@latest",
+          "file": ".mcp.json",
+          "locator": "mcpServers.fetch"
+        }
+      ],
+      "severity": "medium",
+      "title": "Claude Code MCP server (.mcp.json) runs unpinned remote code (unpinned-npx)",
+      "tool": "claude_code"
+    }
+  ],
+  "not_judgeable": [
+    {
+      "dimension": "command_execution",
+      "kind": "dimension",
+      "reason": "Copilot's command authority is platform/runner-side, not a repo grammar (D-02); Copilot is treated as R3 instruction-divergence only.",
+      "tool": "copilot"
+    },
+    {
+      "dimension": "filesystem_read",
+      "kind": "dimension",
+      "reason": "Filesystem scope of the Actions/cloud runner is not described as a repo grant.",
+      "tool": "copilot"
+    },
+    {
+      "dimension": "filesystem_write",
+      "kind": "dimension",
+      "reason": "Filesystem scope of the Actions/cloud runner is not described as a repo grant.",
+      "tool": "copilot"
+    },
+    {
+      "dimension": "secret_reach",
+      "kind": "dimension",
+      "reason": "Not a repo-side grant; governed by the runner/secret-store, not repo config.",
+      "tool": "copilot"
+    },
+    {
+      "dimension": "command_execution",
+      "kind": "dimension",
+      "reason": "Cursor's effective default depends on the user's global Run Mode selection (Cursor Settings), which is not a repo-side artifact.",
+      "tool": "cursor"
+    },
+    {
+      "dimension": "filesystem_read",
+      "kind": "dimension",
+      "reason": "Not determined by the repo; governed by user-global Run Mode / sandbox settings.",
+      "tool": "cursor"
+    },
+    {
+      "dimension": "filesystem_write",
+      "kind": "dimension",
+      "reason": "Not determined by the repo; governed by user-global Run Mode / sandbox settings.",
+      "tool": "cursor"
+    },
+    {
+      "dimension": "network_egress",
+      "kind": "dimension",
+      "reason": "Cursor documents no repo-side network-egress grammar.",
+      "tool": "cursor"
+    },
+    {
+      "dimension": "secret_reach",
+      "kind": "dimension",
+      "reason": "Read scope is user-global (Run Mode), not repo-determined.",
+      "tool": "cursor"
+    },
+    {
+      "dimension": "network_egress",
+      "kind": "dimension",
+      "reason": "`tools.sandbox` default is not documented verbatim (only asserted `undefined` in a non-verbatim summary); without a confirmed sandbox default the egress default is undetermined. `tools.sandboxNetworkAccess` (default false) only applies when the sandbox is on.",
+      "tool": "gemini_cli"
+    }
+  ],
+  "repo_facts": {
+    "secret_paths": [
+      ".env"
+    ],
+    "version_controlled": true
+  },
+  "report_version": "1.0",
+  "summary": {
+    "findings_by_check": {
+      "R2": 1,
+      "R3": 3,
+      "R4": 2,
+      "R5": 1,
+      "R6": 1
+    },
+    "findings_by_severity": {
+      "high": 4,
+      "medium": 4
+    },
+    "not_judgeable_count": 10,
+    "total_findings": 8
+  },
+  "target": "demo-divergence",
+  "tool": "repogrant",
+  "tool_version": "0.1.0",
+  "tools": {
+    "claude_code": {
+      "authority": [
+        {
+          "consent_required": false,
+          "dimension": "command_execution",
+          "evidence": [
+            {
+              "excerpt": "Bash(*)",
+              "file": ".claude/settings.json",
+              "locator": "permissions.allow[0]"
+            }
+          ],
+          "level": "unrestricted",
+          "rationale": "An allow rule grants unrestricted Bash (matches any command); shell runs with no per-call consent.",
+          "source": "config"
+        },
+        {
+          "consent_required": null,
+          "dimension": "filesystem_read",
+          "evidence": [
+            {
+              "excerpt": "By default, Claude has access to files in the directory where you launched it",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://code.claude.com/docs/en/permissions"
+            }
+          ],
+          "level": "workspace",
+          "rationale": "Repo silent; documented default applies. Reads outside the working directory are not stated to be blocked by default.",
+          "source": "default"
+        },
+        {
+          "consent_required": false,
+          "dimension": "filesystem_write",
+          "evidence": [
+            {
+              "excerpt": "Bash(*)",
+              "file": ".claude/settings.json",
+              "locator": "permissions.allow[0]"
+            }
+          ],
+          "level": "unrestricted",
+          "rationale": "Unrestricted Bash can write anywhere the user can; write is effectively unrestricted.",
+          "source": "config"
+        },
+        {
+          "consent_required": false,
+          "dimension": "network_egress",
+          "evidence": [
+            {
+              "excerpt": "Bash(*)",
+              "file": ".claude/settings.json",
+              "locator": "permissions.allow[0]"
+            }
+          ],
+          "level": "on",
+          "rationale": "No network sandbox; with unrestricted Bash the agent can reach any URL (curl/wget) without consent.",
+          "source": "config"
+        },
+        {
+          "consent_required": null,
+          "dimension": "secret_reach",
+          "evidence": [
+            {
+              "excerpt": "By default, Claude has access to files in the directory where you launched it",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://code.claude.com/docs/en/permissions"
+            }
+          ],
+          "level": "reachable",
+          "rationale": "Repo silent; documented default applies. In-workspace secret files (.env, keys) fall within the default read scope.",
+          "source": "default"
+        },
+        {
+          "consent_required": null,
+          "dimension": "auto_approval",
+          "evidence": [
+            {
+              "excerpt": "Claude Code checks workspace trust before it runs any hook from a settings file.",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://code.claude.com/docs/en/hooks"
+            }
+          ],
+          "level": "none",
+          "rationale": "Repo silent; documented default applies. No repo config => no hooks/trusted servers. NB: committed hooks DO run with no trust prompt under `claude -p`/SDK (see R1).",
+          "source": "default"
+        }
+      ],
+      "instruction_files": [],
+      "label": "Claude Code",
+      "parse_problems": [],
+      "surfaces": [
+        {
+          "file": ".claude/settings.json",
+          "kind": "settings",
+          "parsed": true,
+          "present": true
+        },
+        {
+          "file": ".claude/settings.local.json",
+          "kind": "settings",
+          "parsed": false,
+          "present": false
+        },
+        {
+          "file": ".mcp.json",
+          "kind": "mcp",
+          "parsed": true,
+          "present": true
+        }
+      ]
+    },
+    "codex": {
+      "authority": [
+        {
+          "consent_required": true,
+          "dimension": "command_execution",
+          "evidence": [
+            {
+              "excerpt": "on-request",
+              "file": ".codex/config.toml",
+              "locator": "approval_policy"
+            },
+            {
+              "excerpt": "read-only",
+              "file": ".codex/config.toml",
+              "locator": "sandbox_mode"
+            }
+          ],
+          "level": "consent-required",
+          "rationale": "`read-only` sandbox: the agent can't run commands without approval.",
+          "source": "config"
+        },
+        {
+          "consent_required": null,
+          "dimension": "filesystem_read",
+          "evidence": [
+            {
+              "excerpt": "read-only",
+              "file": ".codex/config.toml",
+              "locator": "sandbox_mode"
+            }
+          ],
+          "level": "workspace",
+          "rationale": "`sandbox_mode=read-only` read scope.",
+          "source": "config"
+        },
+        {
+          "consent_required": null,
+          "dimension": "filesystem_write",
+          "evidence": [
+            {
+              "excerpt": "read-only",
+              "file": ".codex/config.toml",
+              "locator": "sandbox_mode"
+            }
+          ],
+          "level": "none",
+          "rationale": "`read-only`: cannot edit files without approval.",
+          "source": "config"
+        },
+        {
+          "consent_required": null,
+          "dimension": "network_egress",
+          "evidence": [
+            {
+              "excerpt": "the default `workspace-write` sandbox mode keeps network access turned off unless you enable it in your configuration:",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://learn.chatgpt.com/docs/agent-approvals-security"
+            }
+          ],
+          "level": "off",
+          "rationale": "Repo silent; documented default applies.",
+          "source": "default"
+        },
+        {
+          "consent_required": null,
+          "dimension": "secret_reach",
+          "evidence": [
+            {
+              "excerpt": "The agent can inspect files",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://learn.chatgpt.com/docs/sandboxing"
+            }
+          ],
+          "level": "reachable",
+          "rationale": "Repo silent; documented default applies. Read scope covers the workspace; in-workspace secrets are inspectable.",
+          "source": "default"
+        },
+        {
+          "consent_required": null,
+          "dimension": "auto_approval",
+          "evidence": [
+            {
+              "excerpt": "Non-managed hooks must be reviewed and trusted before they run.",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://learn.chatgpt.com/docs/hooks.md"
+            }
+          ],
+          "level": "none",
+          "rationale": "Repo silent; documented default applies. Hooks are enabled by default but repo hooks are per-hash trust-gated; no silent auto-run.",
+          "source": "default"
+        }
+      ],
+      "instruction_files": [
+        "AGENTS.md"
+      ],
+      "label": "OpenAI Codex CLI",
+      "parse_problems": [],
+      "surfaces": [
+        {
+          "file": ".codex/config.toml",
+          "kind": "settings",
+          "parsed": true,
+          "present": true
+        },
+        {
+          "file": ".codex/hooks.json",
+          "kind": "hooks",
+          "parsed": false,
+          "present": false
+        },
+        {
+          "file": "AGENTS.md",
+          "kind": "instruction",
+          "parsed": true,
+          "present": true
+        }
+      ]
+    },
+    "copilot": {
+      "authority": [
+        {
+          "consent_required": null,
+          "dimension": "command_execution",
+          "evidence": [],
+          "level": "not-judgeable",
+          "rationale": "Repo is silent and the documented default is not judgeable from the repo.",
+          "reason": "Copilot's command authority is platform/runner-side, not a repo grammar (D-02); Copilot is treated as R3 instruction-divergence only.",
+          "source": "not-judgeable"
+        },
+        {
+          "consent_required": null,
+          "dimension": "filesystem_read",
+          "evidence": [],
+          "level": "not-judgeable",
+          "rationale": "Repo is silent and the documented default is not judgeable from the repo.",
+          "reason": "Filesystem scope of the Actions/cloud runner is not described as a repo grant.",
+          "source": "not-judgeable"
+        },
+        {
+          "consent_required": null,
+          "dimension": "filesystem_write",
+          "evidence": [],
+          "level": "not-judgeable",
+          "rationale": "Repo is silent and the documented default is not judgeable from the repo.",
+          "reason": "Filesystem scope of the Actions/cloud runner is not described as a repo grant.",
+          "source": "not-judgeable"
+        },
+        {
+          "consent_required": null,
+          "dimension": "network_egress",
+          "evidence": [
+            {
+              "excerpt": "By default, Copilot's access to the internet is limited by a firewall.",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/customize-the-agent-firewall"
+            }
+          ],
+          "level": "firewall+recommended-allowlist (platform-side)",
+          "rationale": "Repo silent; documented default applies. Documented platform default, not a repo-granted authority; the repo cannot widen it here.",
+          "source": "default"
+        },
+        {
+          "consent_required": null,
+          "dimension": "secret_reach",
+          "evidence": [],
+          "level": "not-judgeable",
+          "rationale": "Repo is silent and the documented default is not judgeable from the repo.",
+          "reason": "Not a repo-side grant; governed by the runner/secret-store, not repo config.",
+          "source": "not-judgeable"
+        },
+        {
+          "consent_required": null,
+          "dimension": "auto_approval",
+          "evidence": [
+            {
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/customize-the-agent-firewall"
+            }
+          ],
+          "level": "none",
+          "rationale": "Repo silent; documented default applies. No repo-declared shell-hook mechanism is documented for Copilot.",
+          "source": "default"
+        }
+      ],
+      "instruction_files": [],
+      "label": "GitHub Copilot",
+      "parse_problems": [],
+      "surfaces": [
+        {
+          "file": ".github/copilot-instructions.md",
+          "kind": "instruction",
+          "parsed": false,
+          "present": false
+        }
+      ]
+    },
+    "cursor": {
+      "authority": [
+        {
+          "consent_required": null,
+          "dimension": "command_execution",
+          "evidence": [],
+          "level": "not-judgeable",
+          "rationale": "Repo is silent and the documented default is not judgeable from the repo.",
+          "reason": "Cursor's effective default depends on the user's global Run Mode selection (Cursor Settings), which is not a repo-side artifact.",
+          "source": "not-judgeable"
+        },
+        {
+          "consent_required": null,
+          "dimension": "filesystem_read",
+          "evidence": [],
+          "level": "not-judgeable",
+          "rationale": "Repo is silent and the documented default is not judgeable from the repo.",
+          "reason": "Not determined by the repo; governed by user-global Run Mode / sandbox settings.",
+          "source": "not-judgeable"
+        },
+        {
+          "consent_required": null,
+          "dimension": "filesystem_write",
+          "evidence": [],
+          "level": "not-judgeable",
+          "rationale": "Repo is silent and the documented default is not judgeable from the repo.",
+          "reason": "Not determined by the repo; governed by user-global Run Mode / sandbox settings.",
+          "source": "not-judgeable"
+        },
+        {
+          "consent_required": null,
+          "dimension": "network_egress",
+          "evidence": [],
+          "level": "not-judgeable",
+          "rationale": "Repo is silent and the documented default is not judgeable from the repo.",
+          "reason": "Cursor documents no repo-side network-egress grammar.",
+          "source": "not-judgeable"
+        },
+        {
+          "consent_required": null,
+          "dimension": "secret_reach",
+          "evidence": [],
+          "level": "not-judgeable",
+          "rationale": "Repo is silent and the documented default is not judgeable from the repo.",
+          "reason": "Read scope is user-global (Run Mode), not repo-determined.",
+          "source": "not-judgeable"
+        },
+        {
+          "consent_required": true,
+          "dimension": "auto_approval",
+          "evidence": [
+            {
+              "excerpt": "Cursor asks for approval before using MCP tools by default.",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://cursor.com/docs/context/mcp"
+            }
+          ],
+          "level": "ask (MCP)",
+          "rationale": "Repo silent; documented default applies. MCP tool calls ask by default; shell auto-run still depends on user-global Run Mode (not repo). Launch-time consent for a project-declared server is not documented.",
+          "source": "default"
+        }
+      ],
+      "instruction_files": [],
+      "label": "Cursor",
+      "parse_problems": [],
+      "surfaces": [
+        {
+          "file": ".cursor/permissions.json",
+          "kind": "settings",
+          "parsed": false,
+          "present": false
+        },
+        {
+          "file": ".cursor/sandbox.json",
+          "kind": "sandbox",
+          "parsed": false,
+          "present": false
+        },
+        {
+          "file": ".cursor/mcp.json",
+          "kind": "mcp",
+          "parsed": false,
+          "present": false
+        }
+      ]
+    },
+    "gemini_cli": {
+      "authority": [
+        {
+          "consent_required": true,
+          "dimension": "command_execution",
+          "evidence": [
+            {
+              "excerpt": "'default' prompts for approval, 'auto_edit' auto-approves edit tools, and 'plan' is read-only mode.",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/reference/configuration.md"
+            }
+          ],
+          "level": "consent-required",
+          "rationale": "Repo silent; documented default applies. `general.defaultApprovalMode` default is `default`.",
+          "source": "default"
+        },
+        {
+          "consent_required": null,
+          "dimension": "filesystem_read",
+          "evidence": [
+            {
+              "excerpt": "Workspace settings are ignored: The CLI will not load the `.gemini/settings.json` file from the project.",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/cli/trusted-folders.md"
+            }
+          ],
+          "level": "workspace",
+          "rationale": "Repo silent; documented default applies. Folder Trust is OFF by default, so a repo's `.gemini/` config and `.env` ARE honored by default (the protective safe mode only applies once the feature is enabled).",
+          "source": "default"
+        },
+        {
+          "consent_required": true,
+          "dimension": "filesystem_write",
+          "evidence": [
+            {
+              "excerpt": "'default' prompts for approval, 'auto_edit' auto-approves edit tools, and 'plan' is read-only mode.",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/reference/configuration.md"
+            }
+          ],
+          "level": "workspace / consent-required",
+          "rationale": "Repo silent; documented default applies.",
+          "source": "default"
+        },
+        {
+          "consent_required": null,
+          "dimension": "network_egress",
+          "evidence": [],
+          "level": "not-judgeable",
+          "rationale": "Repo is silent and the documented default is not judgeable from the repo.",
+          "reason": "`tools.sandbox` default is not documented verbatim (only asserted `undefined` in a non-verbatim summary); without a confirmed sandbox default the egress default is undetermined. `tools.sandboxNetworkAccess` (default false) only applies when the sandbox is on.",
+          "source": "not-judgeable"
+        },
+        {
+          "consent_required": null,
+          "dimension": "secret_reach",
+          "evidence": [
+            {
+              "excerpt": "Environment variables are ignored: … not load any `.env` files",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/cli/trusted-folders.md"
+            }
+          ],
+          "level": "reachable",
+          "rationale": "Repo silent; documented default applies. That protection applies only in safe mode; Folder Trust is off by default, so `.env` is loaded/reachable by default.",
+          "source": "default"
+        },
+        {
+          "consent_required": null,
+          "dimension": "auto_approval",
+          "evidence": [
+            {
+              "excerpt": "When `true`, bypasses all tool call confirmations for this server (default: `false`)",
+              "file": "<docs>",
+              "locator": "<default>",
+              "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/docs/cli/trusted-folders.md"
+            }
+          ],
+          "level": "none",
+          "rationale": "Repo silent; documented default applies. Default `mcpServers.*.trust` is false; no config => no trusted servers. A committed `trust:true` server auto-runs with no confirmation (see R1).",
+          "source": "default"
+        }
+      ],
+      "instruction_files": [],
+      "label": "Gemini CLI",
+      "parse_problems": [],
+      "surfaces": [
+        {
+          "file": ".gemini/settings.json",
+          "kind": "settings",
+          "parsed": false,
+          "present": false
+        }
+      ]
+    }
+  }
+}

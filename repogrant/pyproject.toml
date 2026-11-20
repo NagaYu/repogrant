@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "repogrant"
+version = "0.1.0"
+description = "Cross-tool repo-side effective-authority verifier for AI coding agents"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "All Rights Reserved" }
+authors = [{ name = "RepoGrant" }]
+keywords = ["agent", "security", "claude-code", "codex", "cursor", "gemini", "copilot", "mcp"]
+dependencies = []  # stdlib only (tomllib requires Python 3.11+)
+
+[project.scripts]
+repogrant = "repogrant.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["repogrant*"]
+exclude = ["bench*", "tests*"]
