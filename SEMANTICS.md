@@ -208,8 +208,7 @@ grant).
 "'default' prompts for approval, 'auto_edit' auto-approves edit tools, and
 'plan' is read-only mode." "YOLO mode … can only be enabled via command line."
 `tools.sandboxNetworkAccess` "Whether the sandbox is allowed to access the
-network." (default `false`). The default of `tools.sandbox` itself is **not**
-documented verbatim → Gemini's silent network-egress cell is `not-judgeable`.
+network." (default `false`). The default of `tools.sandbox` itself is **not** documented verbatim → Gemini's confinement cell is `not-judgeable`, recorded as its own row; the egress cell is documented (`false`, above).
 
 **(C) Folder Trust (the R4 defaults trap).** "The Trusted Folders feature is
 disabled by default." In untrusted ("safe mode"): "Workspace settings are
@@ -253,8 +252,7 @@ computes the others' semantics.
   only, not launch-time behavior.
 - **Copilot** command / filesystem / secret-reach — platform/runner-side, not
   a repo grammar.
-- **Gemini** silent network-egress — `tools.sandbox` default is not documented
-  verbatim.
+- **Gemini** confinement — the `tools.sandbox` default (whether a pre-approved command runs sandboxed at all) is not documented verbatim. Egress is documented: `tools.sandboxNetworkAccess` defaults `false`.
 - Any **malformed or structurally-unexpected** config surface (bad JSON/TOML,
   wrong top-level type, literal `null`) → surfaced as a parse-problem, never
   silently dropped.
